@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id    Int     @id @default(autoincrement())
+  name  String?
+}
+
+
+model token_info{
+  id    Int     @id @default(autoincrement())
+  token_address String
+  name String?
+  symbol String?
+}
+
+
+model comment{
+  id    Int     @id @default(autoincrement())
+  text String?  @db.Text 
+  user String?
+  timestamp BigInt
+  username String?
+  total_likes Int?
+  file_uri String?
+  token_address String
+}
+
+model trade{
+  id    Int     @id @default(autoincrement())
+  token_address String
+  user          String
+  timestamp     BigInt
+  username      String?
+  sol_amount    Float?
+  token_amount  Float
+  tx_index      Int
+  signature     String
+  is_buy        Boolean
+}
