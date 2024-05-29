@@ -46,8 +46,8 @@ async function fetchComments(id: string) {
     const res = await Axios.get(
       `https://client-api-2-74b1891ee9f9.herokuapp.com/replies/${id}?`
     );
-    console.log({ where: "comment", id, data: res.data });
-    const dataList = res.data?.map(async (item: any) => ({
+    console.log({ where: "comment", id });
+    const dataList = res.data?.map((item: any) => ({
       text: item.text,
       user: item.user,
       username: item.username,
@@ -80,7 +80,6 @@ async function fetchTrades(id: string, initOffset: number) {
         `https://client-api-2-74b1891ee9f9.herokuapp.com/trades/${id}?limit=200&offset=${offset}`
       );
       const dataList = res.data?.map((item: any) => {
-        // console.log({ item });
         return {
           token_address: id,
           user: item.user,
@@ -93,7 +92,6 @@ async function fetchTrades(id: string, initOffset: number) {
           is_buy: item.is_buy,
         };
       });
-      //   console.log({ dataList });
       console.log({
         where: "fetch trades",
         id,
@@ -101,9 +99,9 @@ async function fetchTrades(id: string, initOffset: number) {
         length: dataList.length,
       });
 
-      // await prisma.trade.createMany({
-      //   data: dataList,
-      // });
+      await prisma.trade.createMany({
+        data: dataList,
+      });
       if (dataList.length < 200) {
         finished = true;
       } else {
@@ -134,7 +132,6 @@ const fetchHistoryToken = async (id: string) => {
         finished = true;
       }
       const dataList = data.holdings?.map((item: any) => {
-        // console.log({ item });
         return {
           token_address: item.token_address,
           name: item.name,
