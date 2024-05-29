@@ -31,7 +31,6 @@ model token_info{
 
 model comment{
   id    Int     @id @default(autoincrement())
-  comment_id Int @unique
   text String?  @db.Text 
   user String?
   timestamp BigInt
@@ -39,6 +38,7 @@ model comment{
   total_likes Int?
   file_uri String?
   token_address String
+  comment_id   Int  @unique
   @@index([comment_id])
 }
 

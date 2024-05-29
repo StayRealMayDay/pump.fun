@@ -187,6 +187,21 @@ const run = async () => {
   }
 };
 
-run().then(async () => {
-  await prisma.$disconnect();
+// run().then(async () => {
+//   await prisma.$disconnect();
+// });
+
+prisma.comment.createMany({
+  data: [
+    {
+      text: "Yall just got bundle rugged",
+      user: "2nWaZa8ueyWSaCQL7DXogFNnUrD6aQ6wJJypVz6WVQXm",
+      username: "chesh_xbt",
+      total_likes: 0,
+      file_uri: null,
+      timestamp: 1716993645538,
+      token_address: "GgquBsDfjT7ArxsJXP5Mpi8aULmSk4qmUvpZP7eaWypH",
+      comment_id: 2963440,
+    },
+  ],
 });

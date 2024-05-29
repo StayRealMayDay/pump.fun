@@ -13,6 +13,8 @@ CREATE TABLE `token_info` (
     `name` VARCHAR(191) NULL,
     `symbol` VARCHAR(191) NULL,
 
+    UNIQUE INDEX `token_info_token_address_key`(`token_address`),
+    INDEX `token_info_token_address_idx`(`token_address`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -26,7 +28,10 @@ CREATE TABLE `comment` (
     `total_likes` INTEGER NULL,
     `file_uri` VARCHAR(191) NULL,
     `token_address` VARCHAR(191) NOT NULL,
+    `comment_id` INTEGER NOT NULL,
 
+    UNIQUE INDEX `comment_comment_id_key`(`comment_id`),
+    INDEX `comment_comment_id_idx`(`comment_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -43,5 +48,7 @@ CREATE TABLE `trade` (
     `signature` VARCHAR(191) NOT NULL,
     `is_buy` BOOLEAN NOT NULL,
 
+    UNIQUE INDEX `trade_signature_key`(`signature`),
+    INDEX `trade_signature_idx`(`signature`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
