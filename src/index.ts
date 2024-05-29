@@ -41,48 +41,55 @@ const ws = new WebSocket(
 
 async function fetchComments(id: string) {
   try {
-    console.log({ where: "fetch comment", id });
+    // console.log({ where: "fetch comment", id });
 
     const res = await Axios.get(
       `https://client-api-2-74b1891ee9f9.herokuapp.com/replies/${id}?`
     );
-    const dataList = res.data?.map((item: any) => ({
-      text: item.text,
-      user: item.user,
-      username: item.username,
-      total_likes: item.total_likes,
-      file_uri: item.file_uri,
-      timestamp: item.timestamp,
-      token_address: id,
-    }));
-    // console.log({ data: res.data });
+    const dataList = res.data?.map(async (item: any) => {
+      const data = {
+        text: item.text,
+        user: item.user,
+        username: item.username,
+        total_likes: item.total_likes,
+        file_uri: item.file_uri,
+        timestamp: item.timestamp,
+        token_address: id,
+        comment_id: item.id,
+      };
+      return data;
+    });
     await prisma.comment.createMany({
       data: dataList,
     });
+    // console.log({ data: res.data, where: "comment" });
   } catch (e) {
     console.error(e);
   }
 }
 
-async function fetchTrades(id: string) {
+async function fetchTrades(id: string, initOffset: number) {
   try {
-    let offset = 0;
+    let offset = initOffset;
     let finished = false;
     while (!finished) {
       const res = await Axios.get(
         `https://client-api-2-74b1891ee9f9.herokuapp.com/trades/${id}?limit=200&offset=${offset}`
       );
-      const dataList = res.data?.map((item: any) => ({
-        token_address: id,
-        user: item.user,
-        username: item.username,
-        sol_amount: item.sol_amount,
-        token_amount: item.token_amount,
-        timestamp: item.timestamp,
-        tx_index: item.tx_index,
-        signature: item.signature,
-        is_buy: item.is_buy,
-      }));
+      const dataList = res.data?.map((item: any) => {
+        // console.log({ item });
+        return {
+          token_address: id,
+          user: item.user,
+          username: item.username,
+          sol_amount: item.sol_amount,
+          token_amount: item.token_amount,
+          timestamp: item.timestamp,
+          tx_index: item.tx_index,
+          signature: item.signature,
+          is_buy: item.is_buy,
+        };
+      });
       //   console.log({ dataList });
       console.log({
         where: "fetch trades",
@@ -91,9 +98,9 @@ async function fetchTrades(id: string) {
         length: dataList.length,
       });
 
-      await prisma.trade.createMany({
-        data: dataList,
-      });
+      // await prisma.trade.createMany({
+      //   data: dataList,
+      // });
       if (dataList.length < 200) {
         finished = true;
       } else {
@@ -106,13 +113,13 @@ async function fetchTrades(id: string) {
   }
 }
 
-const fetchHistoryToken = async () => {
+const fetchHistoryToken = async (id: string) => {
   try {
     let next = "";
     let finished = false;
 
     while (!finished) {
-      const url = `https://gmgn.ai/defi/quotation/v1/wallet/sol/holdings/5jKYiAzPLB2GWscbT3b1raVcrkz4ehTYcE9GBqNn7FZo?orderby=last_active_timestamp&direction=desc&showsmall=true&sellout=true&limit=50&tx30d=true${
+      const url = `https://gmgn.ai/defi/quotation/v1/wallet/sol/holdings/${id}?orderby=last_active_timestamp&direction=desc&showsmall=true&sellout=true&limit=50&tx30d=true${
         next ? "&cursor=" + next : undefined
       }`;
       const res = await Axios.get(url);
@@ -123,18 +130,25 @@ const fetchHistoryToken = async () => {
       } else {
         finished = true;
       }
-      const dataList = data.holdings?.map((item: any) => ({
-        token_address: item.token_address,
-        name: item.name,
-        symbol: item.symbol,
-      }));
+      const dataList = data.holdings?.map((item: any) => {
+        // console.log({ item });
+        return {
+          token_address: item.token_address,
+          name: item.name,
+          symbol: item.symbol,
+        };
+      });
       const tokenInfo = await prisma.token_info.createMany({
         data: dataList,
       });
       for (const item of dataList) {
         console.log({ where: "fetch token", item });
-
-        await fetchTrades(item.token_address);
+        const trades = await prisma.trade.findMany({
+          where: {
+            token_address: item.token_address,
+          },
+        });
+        await fetchTrades(item.token_address, trades?.length ?? 0);
         await fetchComments(item.token_address);
         await sleep(500);
       }
@@ -151,10 +165,23 @@ const fetchHistoryToken = async () => {
   }
 };
 
-fetchHistoryToken().then(async () => {
-  await prisma.$disconnect();
-});
+// fetchHistoryToken("5jKYiAzPLB2GWscbT3b1raVcrkz4ehTYcE9GBqNn7FZo").then(
+//   async () => {
+//     await prisma.$disconnect();
+//   }
+// );
 
 // fetchComments("5HvxUFGRRV5FhzJtHDYM5uhSTjWGPp9XQxLLjhMcj382");
 
 // fetchTrades("5HvxUFGRRV5FhzJtHDYM5uhSTjWGPp9XQxLLjhMcj382");
+
+const run = async () => {
+  const ids = ["5jKYiAzPLB2GWscbT3b1raVcrkz4ehTYcE9GBqNn7FZo"];
+  for (const id of ids) {
+    await fetchHistoryToken(id);
+  }
+};
+
+run().then(async () => {
+  await prisma.$disconnect();
+});

@@ -22,14 +22,16 @@ model User {
 
 model token_info{
   id    Int     @id @default(autoincrement())
-  token_address String
+  token_address String @unique
   name String?
   symbol String?
+  @@index([token_address])
 }
 
 
 model comment{
   id    Int     @id @default(autoincrement())
+  comment_id Int @unique
   text String?  @db.Text 
   user String?
   timestamp BigInt
@@ -37,6 +39,7 @@ model comment{
   total_likes Int?
   file_uri String?
   token_address String
+  @@index([comment_id])
 }
 
 model trade{
@@ -48,6 +51,7 @@ model trade{
   sol_amount    Float?
   token_amount  Float
   tx_index      Int
-  signature     String
+  signature     String @unique
   is_buy        Boolean
+  @@index([signature])
 }
