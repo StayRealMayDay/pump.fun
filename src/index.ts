@@ -46,19 +46,17 @@ async function fetchComments(id: string) {
     const res = await Axios.get(
       `https://client-api-2-74b1891ee9f9.herokuapp.com/replies/${id}?`
     );
-    const dataList = res.data?.map(async (item: any) => {
-      const data = {
-        text: item.text,
-        user: item.user,
-        username: item.username,
-        total_likes: item.total_likes,
-        file_uri: item.file_uri,
-        timestamp: item.timestamp,
-        token_address: id,
-        comment_id: item.id,
-      };
-      return data;
-    });
+    console.log({ where: "comment", id, data: res.data });
+    const dataList = res.data?.map(async (item: any) => ({
+      text: item.text,
+      user: item.user,
+      username: item.username,
+      total_likes: item.total_likes,
+      file_uri: item.file_uri,
+      timestamp: item.timestamp,
+      token_address: id,
+      comment_id: item.id,
+    }));
     await prisma.comment.createMany({
       data: dataList,
     });
@@ -124,7 +122,7 @@ const fetchHistoryToken = async (id: string) => {
       }`;
       const res = await Axios.get(url);
       const data = res.data.data;
-      //   console.log({ data: data, next, item: data.holdings[0], url });
+      // console.log({ data: data, next, item: data.holdings[0], url });
       if (data.next && data.next !== next) {
         next = data.next;
       } else {
