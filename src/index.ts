@@ -70,6 +70,11 @@ async function fetchTrades(id: string, initOffset: number) {
   try {
     let offset = initOffset;
     let finished = false;
+    console.log({
+      where: "start fetch trades",
+      id,
+      initOffset,
+    });
     while (!finished) {
       const res = await Axios.get(
         `https://client-api-2-74b1891ee9f9.herokuapp.com/trades/${id}?limit=200&offset=${offset}`
