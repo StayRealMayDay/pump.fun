@@ -176,7 +176,12 @@ const fetchHistoryToken = async (id: string) => {
 // fetchTrades("5HvxUFGRRV5FhzJtHDYM5uhSTjWGPp9XQxLLjhMcj382");
 
 const run = async () => {
-  const ids = ["5jKYiAzPLB2GWscbT3b1raVcrkz4ehTYcE9GBqNn7FZo"];
+  const ids = [
+    "5jKYiAzPLB2GWscbT3b1raVcrkz4ehTYcE9GBqNn7FZo",
+    "BbkKqTgL738ztDKp9fD7XvAmiBcWBQNAdKc91WZvYZoe",
+    "6up3Ma5e4eYtJFEaxhsM47f7SeYQxfjay4BfXnEBWwrw",
+    "EFeM9YUwaiwfBh36R82UzszPu9Zzrogtojuo3CtW8mfx",
+  ];
   for (const id of ids) {
     await fetchHistoryToken(id);
   }
