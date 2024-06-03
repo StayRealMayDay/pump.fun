@@ -59,6 +59,7 @@ async function fetchComments(id: string) {
     }));
     await prisma.comment.createMany({
       data: dataList,
+      skipDuplicates: true,
     });
     // console.log({ data: res.data, where: "comment" });
   } catch (e) {
@@ -100,6 +101,7 @@ async function fetchTrades(id: string, initOffset: number) {
       });
       await prisma.trade.createMany({
         data: dataList,
+        skipDuplicates: true,
       });
       if (dataList.length < 200) {
         finished = true;
@@ -139,6 +141,7 @@ const fetchHistoryToken = async (id: string) => {
       });
       const tokenInfo = await prisma.token_info.createMany({
         data: dataList,
+        skipDuplicates: true,
       });
       for (const item of dataList) {
         console.log({ where: "fetch token", item });
@@ -211,3 +214,24 @@ run().then(async () => {
 //   }
 // }
 // a();
+
+// async function tt() {
+//   try {
+//     const tokenInfo = await prisma.user.createMany({
+//       data: [
+//         {
+//           name: "haoran",
+//         },
+//         {
+//           name: "tt",
+//         },
+//       ],
+//       skipDuplicates: true,
+//     });
+//     console.log({ tokenInfo });
+//   } catch (e) {
+//     console.log({ e, where: "error" });
+//   }
+// }
+
+// tt();
