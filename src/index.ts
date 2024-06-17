@@ -181,6 +181,8 @@ const run = async () => {
     "BbkKqTgL738ztDKp9fD7XvAmiBcWBQNAdKc91WZvYZoe",
     "6up3Ma5e4eYtJFEaxhsM47f7SeYQxfjay4BfXnEBWwrw",
     "EFeM9YUwaiwfBh36R82UzszPu9Zzrogtojuo3CtW8mfx",
+    "D3zetbZm7s9XMCBqKgurhZ5Qu1tGgJUg9wKKnPennHet",
+    "DYRZqQgxxyDgjEthBhtUeMLAEUvoBRcMdTX61xiBXKEE",
   ];
   for (const id of ids) {
     await fetchHistoryToken(id);
