@@ -1,7 +1,7 @@
-import WebSocket from "ws";
+// import WebSocket from "ws";
 import Axios from "axios";
-import "reflect-metadata";
-import { myDataSource, pool } from "./mysql";
+// import "reflect-metadata";
+// import { myDataSource, pool } from "./mysql";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -14,9 +14,9 @@ const sleep = (time: number) => {
   });
 };
 
-const ws = new WebSocket(
-  "wss://client-api-2-74b1891ee9f9.herokuapp.com/socket.io/?EIO=4&transport=websocket"
-);
+// const ws = new WebSocket(
+//   "wss://client-api-2-74b1891ee9f9.herokuapp.com/socket.io/?EIO=4&transport=websocket"
+// );
 
 // 打开WebSocket连接后立刻发送一条消息:
 // ws.on("open", function () {
@@ -43,9 +43,7 @@ async function fetchComments(id: string) {
   try {
     // console.log({ where: "fetch comment", id });
 
-    const res = await Axios.get(
-      `https://client-api-2-74b1891ee9f9.herokuapp.com/replies/${id}?`
-    );
+    const res = await Axios.get(`https://frontend-api.pump.fun/replies/${id}?`);
     console.log({ where: "comment", id });
     const dataList = res.data?.map((item: any) => ({
       text: item.text,
@@ -78,7 +76,7 @@ async function fetchTrades(id: string, initOffset: number) {
     });
     while (!finished) {
       const res = await Axios.get(
-        `https://client-api-2-74b1891ee9f9.herokuapp.com/trades/${id}?limit=200&offset=${offset}`
+        `https://frontend-api.pump.fun/trades/${id}?limit=200&offset=${offset}`
       );
       const dataList = res.data?.map((item: any) => {
         return {
