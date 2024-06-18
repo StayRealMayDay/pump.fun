@@ -25,6 +25,16 @@ model token_info{
   token_address String @unique
   name String?
   symbol String?
+  mint String?
+  traderPublicKey String?
+  txType String?
+  bondingCurveKey String?
+  description String?
+  image String?
+  createdOn String?
+  twitter String?
+  telegram String?
+  website String?
   @@index([token_address])
 }
 

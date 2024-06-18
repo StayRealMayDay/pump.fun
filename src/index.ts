@@ -1,7 +1,4 @@
-// import WebSocket from "ws";
 import Axios from "axios";
-// import "reflect-metadata";
-// import { myDataSource, pool } from "./mysql";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -14,35 +11,42 @@ const sleep = (time: number) => {
   });
 };
 
-// const ws = new WebSocket(
-//   "wss://client-api-2-74b1891ee9f9.herokuapp.com/socket.io/?EIO=4&transport=websocket"
-// );
+const fetchTokenMetadata = async (token: string) => {
+  try {
+    const url = `https://pumpportal.fun/api/data/token-info?ca=${token}`;
+    const res = await Axios.get(url);
+    console.log({ where: "fetch token meta data", data: res.data });
+    return res.data.data;
+  } catch (e) {
+    console.error({ e, where: "fetch token metadata error" });
+  }
+};
 
-// 打开WebSocket连接后立刻发送一条消息:
-// ws.on("open", function () {
-//   console.log(`[CLIENT] open()`);
-//   ws.send("40");
-// });
-
-// // 响应收到的消息:
-// ws.on("message", function (message) {
-//   console.log(`[CLIENT] Received: ${message} ${Array.isArray(message)}`);
-//   if (message) {
-//     const stringMessage = message.toString();
-//     if (stringMessage.includes("tradeCreated")) {
-//       const startIndex = stringMessage.indexOf("[");
-//       const endIndex = stringMessage.lastIndexOf("]");
-//       const content = stringMessage.substring(startIndex, endIndex + 1);
-//       const data = JSON.parse(content);
-//       console.log({ data });
-//     }
-//   }
-// });
+export const storeTokenMetadatas = async (tokenList: string[]) => {
+  try {
+    for (const token of tokenList) {
+      const data = await fetchTokenMetadata(token);
+      delete data.showName;
+      await prisma.token_info.upsert({
+        where: { token_address: token },
+        update: {
+          ...data,
+        },
+        create: {
+          token_address: token,
+          ...data,
+        },
+      });
+      await sleep(400);
+    }
+    tokenList.forEach(async (token) => {});
+  } catch (e) {
+    console.error({ e, where: "storeTokenMetadata" });
+  }
+};
 
 async function fetchComments(id: string) {
   try {
-    // console.log({ where: "fetch comment", id });
-
     const res = await Axios.get(`https://frontend-api.pump.fun/replies/${id}?`);
     console.log({ where: "comment", id });
     const dataList = res.data?.map((item: any) => ({
@@ -141,6 +145,7 @@ const fetchHistoryToken = async (id: string) => {
         data: dataList,
         skipDuplicates: true,
       });
+      storeTokenMetadatas(dataList.map((item: any) => item.token_address));
       for (const item of dataList) {
         console.log({ where: "fetch token", item });
         const trades = await prisma.trade.findMany({
@@ -152,28 +157,11 @@ const fetchHistoryToken = async (id: string) => {
         await fetchComments(item.token_address);
         await sleep(500);
       }
-      //   dataList.map(async (item: any) => {
-
-      //   });
-      //   console.log({ tokenInfo });
     }
-    // pool.getConnection((err, conn) => {});
-
-    // await userRes.save({ id: 123, firstName: "haoran" });
   } catch (e) {
     console.log(e);
   }
 };
-
-// fetchHistoryToken("5jKYiAzPLB2GWscbT3b1raVcrkz4ehTYcE9GBqNn7FZo").then(
-//   async () => {
-//     await prisma.$disconnect();
-//   }
-// );
-
-// fetchComments("5HvxUFGRRV5FhzJtHDYM5uhSTjWGPp9XQxLLjhMcj382");
-
-// fetchTrades("5HvxUFGRRV5FhzJtHDYM5uhSTjWGPp9XQxLLjhMcj382");
 
 const run = async () => {
   const ids = [
@@ -193,45 +181,6 @@ run().then(async () => {
   await prisma.$disconnect();
 });
 
-// async function a() {
-//   try {
-//     await prisma.comment.createMany({
-//       data: [
-//         {
-//           text: "Yall just got bundle rugged",
-//           user: "2nWaZa8ueyWSaCQL7DXogFNnUrD6aQ6wJJypVz6WVQXm",
-//           username: "chesh_xbt",
-//           total_likes: 0,
-//           file_uri: null,
-//           timestamp: 1716993645538,
-//           token_address: "GgquBsDfjT7ArxsJXP5Mpi8aULmSk4qmUvpZP7eaWypH",
-//           comment_id: 2963440,
-//         },
-//       ],
-//     });
-//   } catch (e) {
-//     console.log({ e });
-//   }
-// }
-// a();
+// fetchTokenMetadata("HwLsW1m9MzNVAfrax3XvwfBctndvC22cnSbMdWRMMFne");
 
-// async function tt() {
-//   try {
-//     const tokenInfo = await prisma.user.createMany({
-//       data: [
-//         {
-//           name: "haoran",
-//         },
-//         {
-//           name: "tt",
-//         },
-//       ],
-//       skipDuplicates: true,
-//     });
-//     console.log({ tokenInfo });
-//   } catch (e) {
-//     console.log({ e, where: "error" });
-//   }
-// }
-
-// tt();
+// storeTokenMetadatas(["HwLsW1m9MzNVAfrax3XvwfBctndvC22cnSbMdWRMMFne"]);
