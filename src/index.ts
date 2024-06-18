@@ -45,6 +45,31 @@ export const storeTokenMetadatas = async (tokenList: string[]) => {
   }
 };
 
+export const queryAndStoreTokenMeta = async () => {
+  try {
+    let cursor = 1;
+    while (true) {
+      const data = await prisma.token_info.findMany({
+        take: 100,
+        skip: cursor,
+        cursor: { id: cursor },
+        orderBy: {
+          id: "asc",
+        },
+      });
+      // console.log({ data });
+      if (data.length > 0) {
+        await storeTokenMetadatas(data.map((item) => item.token_address));
+        cursor = data.pop()?.id ?? 0;
+      } else {
+        await sleep(3000);
+      }
+    }
+  } catch (e) {
+    console.error({ e });
+  }
+};
+
 async function fetchComments(id: string) {
   try {
     const res = await Axios.get(`https://frontend-api.pump.fun/replies/${id}?`);
@@ -145,7 +170,7 @@ const fetchHistoryToken = async (id: string) => {
         data: dataList,
         skipDuplicates: true,
       });
-      storeTokenMetadatas(dataList.map((item: any) => item.token_address));
+      // storeTokenMetadatas(dataList.map((item: any) => item.token_address));
       for (const item of dataList) {
         console.log({ where: "fetch token", item });
         const trades = await prisma.trade.findMany({
@@ -181,6 +206,7 @@ const run = async () => {
 run().then(async () => {
   await prisma.$disconnect();
 });
+queryAndStoreTokenMeta();
 
 // fetchTokenMetadata("HwLsW1m9MzNVAfrax3XvwfBctndvC22cnSbMdWRMMFne");
 
