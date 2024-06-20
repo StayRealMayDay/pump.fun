@@ -203,9 +203,9 @@ const run = async () => {
   }
 };
 
-run().then(async () => {
-  await prisma.$disconnect();
-});
+// run().then(async () => {
+//   await prisma.$disconnect();
+// });
 queryAndStoreTokenMeta();
 
 // fetchTokenMetadata("HwLsW1m9MzNVAfrax3XvwfBctndvC22cnSbMdWRMMFne");
