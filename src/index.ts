@@ -51,7 +51,7 @@ export const queryAndStoreTokenMeta = async () => {
     while (true) {
       const data = await prisma.token_info.findMany({
         take: 100,
-        skip: cursor,
+        skip: 1,
         cursor: { id: cursor },
         orderBy: {
           id: "asc",
