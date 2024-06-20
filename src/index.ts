@@ -19,6 +19,7 @@ const fetchTokenMetadata = async (token: string) => {
     return res.data.data;
   } catch (e) {
     console.error({ e, where: "fetch token metadata error" });
+    storeTokenMetadatas([token]);
   }
 };
 
@@ -37,9 +38,8 @@ export const storeTokenMetadatas = async (tokenList: string[]) => {
           ...data,
         },
       });
-      await sleep(400);
+      await sleep(1000);
     }
-    tokenList.forEach(async (token) => {});
   } catch (e) {
     console.error({ e, where: "storeTokenMetadata" });
   }
@@ -57,7 +57,11 @@ export const queryAndStoreTokenMeta = async () => {
           id: "asc",
         },
       });
-      // console.log({ data });
+      console.log({
+        where: "query and store",
+        cursor,
+        dataLength: data.length,
+      });
       if (data.length > 0) {
         await storeTokenMetadatas(data.map((item) => item.token_address));
         cursor = data.pop()?.id ?? 0;
@@ -66,7 +70,7 @@ export const queryAndStoreTokenMeta = async () => {
       }
     }
   } catch (e) {
-    console.error({ e });
+    console.error({ e, where: "query and store error" });
   }
 };
 
@@ -207,6 +211,8 @@ const run = async () => {
 //   await prisma.$disconnect();
 // });
 queryAndStoreTokenMeta();
+// fetchTokenMetadata("9hLWZJhpnbWDLh75CuXQP7U7MCos61z8PoxBFVCVAq95");
+// storeTokenMetadatas(["9hLWZJhpnbWDLh75CuXQP7U7MCos61z8PoxBFVCVAq95"]);
 
 // fetchTokenMetadata("HwLsW1m9MzNVAfrax3XvwfBctndvC22cnSbMdWRMMFne");
 
