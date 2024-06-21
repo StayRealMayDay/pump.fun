@@ -30,21 +30,21 @@ export const storeTokenMetadatas = async (tokenList: string[]) => {
       await sleep(4000);
       const data = await fetchTokenMetadata(token);
       if (data) {
-        delete data.showName;
         const insertData = {
-          ...data,
-          ...data?.extensions,
+          token_address: token,
+          name: data.name,
+          symbol: data.symbol,
+          description: data.description,
+          image: data.image,
+          createdOn: data.createdOn,
+          twitter: data.twitter ?? data.extensions?.twitter,
+          telegram: data.telegram ?? data.extensions?.telegram,
+          website: data.website ?? data.extensions?.website,
         };
-        delete insertData.extensions;
         await prisma.token_info.upsert({
           where: { token_address: token },
-          update: {
-            ...insertData,
-          },
-          create: {
-            token_address: token,
-            ...insertData,
-          },
+          update: insertData,
+          create: insertData,
         });
         // console.log({ result });
       } else {
@@ -58,7 +58,7 @@ export const storeTokenMetadatas = async (tokenList: string[]) => {
 
 export const queryAndStoreTokenMeta = async () => {
   try {
-    let cursor = 119;
+    let cursor = 979;
     while (true) {
       const data = await prisma.token_info.findMany({
         take: 100,
