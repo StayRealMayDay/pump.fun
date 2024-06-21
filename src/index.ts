@@ -53,7 +53,7 @@ export const storeTokenMetadatas = async (tokenList: string[]) => {
 
 export const queryAndStoreTokenMeta = async () => {
   try {
-    let cursor = 727;
+    let cursor = 119;
     while (true) {
       const data = await prisma.token_info.findMany({
         take: 100,
@@ -69,7 +69,10 @@ export const queryAndStoreTokenMeta = async () => {
         dataLength: data.length,
       });
       if (data.length > 0) {
-        await storeTokenMetadatas(data.map((item) => item.token_address));
+        const emptyData = data.filter((item) => !Boolean(item.description));
+        if (emptyData.length > 0) {
+          await storeTokenMetadatas(data.map((item) => item.token_address));
+        }
         cursor = data.pop()?.id ?? 0;
       } else {
         await sleep(30000);
