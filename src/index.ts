@@ -31,14 +31,19 @@ export const storeTokenMetadatas = async (tokenList: string[]) => {
       const data = await fetchTokenMetadata(token);
       if (data) {
         delete data.showName;
+        const insertData = {
+          ...data,
+          ...data?.extensions,
+        };
+        delete insertData.extensions;
         await prisma.token_info.upsert({
           where: { token_address: token },
           update: {
-            ...data,
+            ...insertData,
           },
           create: {
             token_address: token,
-            ...data,
+            ...insertData,
           },
         });
         // console.log({ result });
