@@ -19,6 +19,7 @@ const fetchTokenMetadata = async (token: string) => {
     return res.data.data;
   } catch (e) {
     console.error({ e, where: "fetch token metadata error" });
+    await sleep(15000);
     storeTokenMetadatas([token]);
   }
 };
@@ -26,6 +27,7 @@ const fetchTokenMetadata = async (token: string) => {
 export const storeTokenMetadatas = async (tokenList: string[]) => {
   try {
     for (const token of tokenList) {
+      await sleep(4000);
       const data = await fetchTokenMetadata(token);
       if (data) {
         delete data.showName;
@@ -40,7 +42,8 @@ export const storeTokenMetadatas = async (tokenList: string[]) => {
           },
         });
         // console.log({ result });
-        await sleep(1000);
+      } else {
+        await sleep(30000);
       }
     }
   } catch (e) {
@@ -69,7 +72,7 @@ export const queryAndStoreTokenMeta = async () => {
         await storeTokenMetadatas(data.map((item) => item.token_address));
         cursor = data.pop()?.id ?? 0;
       } else {
-        await sleep(3000);
+        await sleep(30000);
       }
     }
   } catch (e) {
