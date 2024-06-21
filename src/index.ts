@@ -27,19 +27,21 @@ export const storeTokenMetadatas = async (tokenList: string[]) => {
   try {
     for (const token of tokenList) {
       const data = await fetchTokenMetadata(token);
-      delete data.showName;
-      await prisma.token_info.upsert({
-        where: { token_address: token },
-        update: {
-          ...data,
-        },
-        create: {
-          token_address: token,
-          ...data,
-        },
-      });
-      // console.log({ result });
-      await sleep(1000);
+      if (data) {
+        delete data.showName;
+        await prisma.token_info.upsert({
+          where: { token_address: token },
+          update: {
+            ...data,
+          },
+          create: {
+            token_address: token,
+            ...data,
+          },
+        });
+        // console.log({ result });
+        await sleep(1000);
+      }
     }
   } catch (e) {
     console.error({ e, where: "storeTokenMetadata" });
