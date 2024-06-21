@@ -38,6 +38,7 @@ export const storeTokenMetadatas = async (tokenList: string[]) => {
           ...data,
         },
       });
+      // console.log({ result });
       await sleep(1000);
     }
   } catch (e) {
@@ -47,7 +48,7 @@ export const storeTokenMetadatas = async (tokenList: string[]) => {
 
 export const queryAndStoreTokenMeta = async () => {
   try {
-    let cursor = 1;
+    let cursor = 727;
     while (true) {
       const data = await prisma.token_info.findMany({
         take: 100,
@@ -212,7 +213,7 @@ const run = async () => {
 // });
 queryAndStoreTokenMeta();
 // fetchTokenMetadata("9hLWZJhpnbWDLh75CuXQP7U7MCos61z8PoxBFVCVAq95");
-// storeTokenMetadatas(["9hLWZJhpnbWDLh75CuXQP7U7MCos61z8PoxBFVCVAq95"]);
+// storeTokenMetadatas(["8MDoSLLYrKMCag6cRVU6N7KFKDkcAWxpaTFw5Q9Vw5u9"]);
 
 // fetchTokenMetadata("HwLsW1m9MzNVAfrax3XvwfBctndvC22cnSbMdWRMMFne");
 
