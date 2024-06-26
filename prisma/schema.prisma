@@ -35,6 +35,7 @@ model token_info{
   twitter String?
   telegram String?
   website String?
+  signature String?
   @@index([token_address])
 }
 

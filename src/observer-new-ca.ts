@@ -1,4 +1,7 @@
 import WebSocket from "ws";
+import { PrismaClient } from "@prisma/client";
+import { storeTokenMetadatas } from "./load-data";
+const prisma = new PrismaClient();
 
 const ws = new WebSocket("wss://pumpportal.fun/api/data");
 
@@ -21,9 +24,32 @@ ws.on("open", function open() {
   //       method: "subscribeTokenTrade",
   //       keys: ["91WNez8D22NwBssQbkzjy4s2ipFrzpmn5hfvWVe2aY5p"] // array of token CAs to watch
   //     }
-  ws.send(JSON.stringify(payload));
+  //   ws.send(JSON.stringify(payload));
 });
 
-ws.on("message", function message(data) {
-  console.log(JSON.parse(data as unknown as string));
+ws.on("message", async function message(data) {
+  try {
+    // console.log(JSON.parse(data as unknown as string));
+    const tokenInfo = JSON.parse(data as unknown as string);
+    console.log({ tokenInfo });
+    if (tokenInfo.mint) {
+      const insertdata = {
+        token_address: tokenInfo.mint,
+        signature: tokenInfo.signature,
+        txType: tokenInfo.txType,
+        mint: tokenInfo.mint,
+        bondingCurveKey: tokenInfo.bondingCurveKey,
+        traderPublicKey: tokenInfo.traderPublicKey,
+      };
+      await prisma.token_info.upsert({
+        where: { token_address: tokenInfo.mint },
+        update: insertdata,
+        create: insertdata,
+      });
+
+      storeTokenMetadatas([tokenInfo.mint]);
+    }
+  } catch (e) {
+    console.error({ e, where: "sub message" });
+  }
 });
