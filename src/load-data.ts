@@ -283,7 +283,7 @@ export const tokenFromUserStart = async (
   }
 };
 
-updateTradesAndCommentOfAllToken();
+// updateTradesAndCommentOfAllToken();
 
 // run().then(async () => {
 //   await prisma.$disconnect();
