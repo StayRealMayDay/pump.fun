@@ -203,16 +203,59 @@ async function fetchTrades(id: string, initOffset: number) {
   }
 }
 
-export const fetchTradeAndCommentOfToken = async (token: string) => {
-  const trades = await prisma.trade.findMany({
-    where: {
-      token_address: token,
-    },
-  });
-  await fetchTrades(token, trades?.length ?? 0);
-  await fetchComments(token);
-  await sleep(500);
-};
+async function updateTrades(id: string, initOffset: number) {
+  try {
+    let offset = initOffset;
+    let finished = false;
+    console.log({
+      where: "start update trades",
+      id,
+      initOffset,
+    });
+    while (!finished) {
+      const res = await Axios.get(
+        `https://frontend-api.pump.fun/trades/${id}?limit=200&offset=${offset}`
+      );
+      const dataList = res.data?.map((item: any) => {
+        return {
+          token_address: id,
+          user: item.user,
+          username: item.username,
+          sol_amount: item.sol_amount,
+          token_amount: item.token_amount,
+          timestamp: item.timestamp,
+          tx_index: item.tx_index,
+          signature: item.signature,
+          is_buy: item.is_buy,
+        };
+      });
+      console.log({
+        where: "update trades",
+        id,
+        offset,
+        length: dataList.length,
+      });
+      const { count } = await prisma.trade.createMany({
+        data: dataList,
+        skipDuplicates: true,
+      });
+      if (dataList.length < 200 || count < dataList.length) {
+        finished = true;
+      } else {
+        offset += 200;
+      }
+      await sleep(500);
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+// export const updateTradeAndCommentOfToken = async (token: string) => {
+//   await updateTrades(token, 0);
+//   await fetchComments(token);
+//   await sleep(500);
+// };
 
 const fetchHistoryToken = async (id: string) => {
   try {
@@ -286,7 +329,10 @@ export const updateTradesAndCommentOfAllToken = async (
 
       if (data.length > 0) {
         for (const item of data) {
-          await fetchTradeAndCommentOfToken(item.token_address);
+          // await fetchTradeAndCommentOfToken(item.token_address);
+          await updateTrades(item.token_address, 0);
+          await fetchComments(item.token_address);
+          await sleep(500);
         }
         cursor = data.pop()?.id ?? 0;
       } else {
@@ -325,6 +371,7 @@ export const tokenFromUserStart = async (
     id && fn(id);
   }
 };
+// updateTrades("4zG7RsFitfLJQMpRhXR7GH6Wi1qictqBZx2bXkqXZQ27", 0);
 
 // fetchTokenMetadata("Doge9xAuYPC4DBzsBuvoTd8B5HxqyS3kaYc5EdBuVPKV");
 
