@@ -244,7 +244,7 @@ async function updateTrades(id: string, initOffset: number) {
       } else {
         offset += 200;
       }
-      await sleep(500);
+      await sleep(1000);
     }
   } catch (e) {
     console.error(e);
