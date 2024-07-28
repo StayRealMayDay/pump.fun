@@ -1,6 +1,6 @@
 import WebSocket from "ws";
 import { PrismaClient } from "@prisma/client";
-import { storeTokenMetadatas } from "./load-data";
+import { storeTokenMetadatasFromPump } from "./load-data";
 const prisma = new PrismaClient();
 
 const ws = new WebSocket("wss://pumpportal.fun/api/data");
@@ -47,7 +47,7 @@ ws.on("message", async function message(data) {
         create: insertdata,
       });
 
-      storeTokenMetadatas([tokenInfo.mint]);
+      storeTokenMetadatasFromPump([tokenInfo.mint]);
     }
   } catch (e) {
     console.error({ e, where: "sub message" });

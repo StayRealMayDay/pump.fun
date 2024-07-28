@@ -25,6 +25,15 @@ const fetchTokenMetadata = async (token: string) => {
   }
 };
 
+export const fetchTokenMetaDataFromPump = async (token: string) => {
+  try {
+    const url = `https://frontend-api.pump.fun/coins/${token}`;
+    const res = await Axios.get(url);
+    console.log({ data: res.data });
+    return res.data;
+  } catch (e) {}
+};
+
 export const storeTokenMetadatas = async (tokenList: string[]) => {
   try {
     for (const token of tokenList) {
@@ -38,6 +47,39 @@ export const storeTokenMetadatas = async (tokenList: string[]) => {
           description: data.description,
           image: data.image,
           createdOn: data.createdOn,
+          twitter: data.twitter ?? data.extensions?.twitter,
+          telegram: data.telegram ?? data.extensions?.telegram,
+          website: data.website ?? data.extensions?.website,
+        };
+        await prisma.token_info.upsert({
+          where: { token_address: token },
+          update: insertData,
+          create: insertData,
+        });
+        // console.log({ result });
+      } else {
+        await sleep(30000);
+      }
+    }
+  } catch (e) {
+    console.error({ e, where: "storeTokenMetadata" });
+  }
+};
+
+export const storeTokenMetadatasFromPump = async (tokenList: string[]) => {
+  try {
+    for (const token of tokenList) {
+      await sleep(4000);
+      const data = await fetchTokenMetaDataFromPump(token);
+      if (data) {
+        const insertData = {
+          token_address: token,
+          name: data.name,
+          symbol: data.symbol,
+          description: data.description,
+          image: data.image_uri,
+          // createdOn: data.createdOn,
+          creator: data.creator,
           twitter: data.twitter ?? data.extensions?.twitter,
           telegram: data.telegram ?? data.extensions?.telegram,
           website: data.website ?? data.extensions?.website,
@@ -285,6 +327,8 @@ export const tokenFromUserStart = async (
 };
 
 // fetchTokenMetadata("Doge9xAuYPC4DBzsBuvoTd8B5HxqyS3kaYc5EdBuVPKV");
+
+// storeTokenMetadatasFromPump(["3UCfcgZNdr1KdkFe56pePEk1dXoXV4imk2a4bQUWpump"]);
 
 // updateTradesAndCommentOfAllToken();
 
