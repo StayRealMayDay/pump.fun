@@ -20,7 +20,8 @@ const fetchTokenMetadata = async (token: string) => {
   } catch (e) {
     console.error({ e, where: "fetch token metadata error" });
     await sleep(15000);
-    storeTokenMetadatas([token]);
+    // if(e?.response)
+    // storeTokenMetadatas([token]);
   }
 };
 
@@ -282,6 +283,8 @@ export const tokenFromUserStart = async (
     id && fn(id);
   }
 };
+
+// fetchTokenMetadata("Doge9xAuYPC4DBzsBuvoTd8B5HxqyS3kaYc5EdBuVPKV");
 
 // updateTradesAndCommentOfAllToken();
 
