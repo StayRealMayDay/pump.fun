@@ -65,4 +65,5 @@ model trade{
   signature     String @unique
   is_buy        Boolean
   @@index([signature])
+  @@index([token_address])
 }

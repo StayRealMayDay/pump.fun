@@ -160,6 +160,17 @@ async function fetchTrades(id: string, initOffset: number) {
   }
 }
 
+export const fetchTradeAndCommentOfToken = async (token: string) => {
+  const trades = await prisma.trade.findMany({
+    where: {
+      token_address: token,
+    },
+  });
+  await fetchTrades(token, trades?.length ?? 0);
+  await fetchComments(token);
+  await sleep(500);
+};
+
 const fetchHistoryToken = async (id: string) => {
   try {
     let next = "";
@@ -198,7 +209,6 @@ const fetchHistoryToken = async (id: string) => {
           .filter((item) => !Boolean(item.description))
           .map((item) => item.token_address)
       );
-      // storeTokenMetadatas(dataList.map((item: any) => item.token_address));
       for (const item of dataList) {
         console.log({ where: "fetch token", item });
         const trades = await prisma.trade.findMany({
@@ -216,20 +226,51 @@ const fetchHistoryToken = async (id: string) => {
   }
 };
 
-const run = async () => {
-  const ids = [
-    "5jKYiAzPLB2GWscbT3b1raVcrkz4ehTYcE9GBqNn7FZo",
-    "BbkKqTgL738ztDKp9fD7XvAmiBcWBQNAdKc91WZvYZoe",
-    "6up3Ma5e4eYtJFEaxhsM47f7SeYQxfjay4BfXnEBWwrw",
-    "EFeM9YUwaiwfBh36R82UzszPu9Zzrogtojuo3CtW8mfx",
-    "D3zetbZm7s9XMCBqKgurhZ5Qu1tGgJUg9wKKnPennHet",
-    "DYRZqQgxxyDgjEthBhtUeMLAEUvoBRcMdTX61xiBXKEE",
-    "orcACRJYTFjTeo2pV8TfYRTpmqfoYgbVi9GeANXTCc8",
-  ];
-  for (const id of ids) {
-    await fetchHistoryToken(id);
+export const updateTradesAndCommentOfAllToken = async (
+  initCursor: number = 979
+) => {
+  try {
+    let cursor = initCursor;
+    while (true) {
+      const data = await prisma.token_info.findMany({
+        take: 100,
+        skip: 1,
+        cursor: { id: cursor },
+        orderBy: {
+          id: "asc",
+        },
+      });
+
+      if (data.length > 0) {
+        for (const item of data) {
+          await fetchTradeAndCommentOfToken(item.token_address);
+        }
+        cursor = data.pop()?.id ?? 0;
+      } else {
+        break;
+        // await sleep(30000);
+      }
+    }
+    console.log({ where: "updateTradesAndCommentOfAllToken finished" });
+  } catch (e) {
+    console.error({ e, where: "updateTradesAndCommentOfAllToken error" });
   }
 };
+
+// const run = async () => {
+//   const ids = [
+//     "5jKYiAzPLB2GWscbT3b1raVcrkz4ehTYcE9GBqNn7FZo",
+//     "BbkKqTgL738ztDKp9fD7XvAmiBcWBQNAdKc91WZvYZoe",
+//     "6up3Ma5e4eYtJFEaxhsM47f7SeYQxfjay4BfXnEBWwrw",
+//     "EFeM9YUwaiwfBh36R82UzszPu9Zzrogtojuo3CtW8mfx",
+//     "D3zetbZm7s9XMCBqKgurhZ5Qu1tGgJUg9wKKnPennHet",
+//     "DYRZqQgxxyDgjEthBhtUeMLAEUvoBRcMdTX61xiBXKEE",
+//     "orcACRJYTFjTeo2pV8TfYRTpmqfoYgbVi9GeANXTCc8",
+//   ];
+//   for (const id of ids) {
+//     await fetchHistoryToken(id);
+//   }
+// };
 
 export const tokenFromUserStart = async (
   tokens: string[],
@@ -241,6 +282,8 @@ export const tokenFromUserStart = async (
     id && fn(id);
   }
 };
+
+updateTradesAndCommentOfAllToken();
 
 // run().then(async () => {
 //   await prisma.$disconnect();
